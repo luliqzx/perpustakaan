@@ -28,19 +28,26 @@ Route::get('/', function () {
 
 Route::group(['middleware' => ['web']], function () {
     //
+	Route::auth();
+	Route::get('/home', 'HomeController@index');
+
+	// Route::group(['prefix'=>'admin', 'middleware'=>['auth']], function () {
+		// Route diisi disini...
+	Route::group(['prefix'=>'admin', 'middleware'=>['auth', 'role:admin']], function () {
+		Route::resource('authors', 'AuthorsController');
+
+	});	
 });
 
 Route::get('/about', 'HomeController@showAbout');
 
 
 Route::get('/testmodel', function() {
-$post = new App\Post;
-$post->title = "7 Amalan Pembuka Jodoh";
- $post->content = "shalat malam, sedekah, puasa sunah, silaturahmi, senyum, doa, tobat";
- $post->save();
- return $post;
+	$post = new App\Post;
+	$post->title = "7 Amalan Pembuka Jodoh";
+	$post->content = "shalat malam, sedekah, puasa sunah, silaturahmi, senyum, doa, tobat";
+	$post->save();
+	return $post;
  // check record baru di database
 });
-Route::auth();
 
-Route::get('/home', 'HomeController@index');
