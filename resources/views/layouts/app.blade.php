@@ -88,6 +88,7 @@ padding: 15px 0px 15px 0px;
         </div>
     </nav>
 
+    @include('layouts._flash')
     @yield('content')
 
     <!-- JavaScripts -->
