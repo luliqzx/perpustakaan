@@ -32,8 +32,10 @@ class AuthorsController extends Controller
             ->addColumn('action', function($author){
                 return view('datatable._action', [
                     'model' => $author,
-'form_url' => route('admin.authors.destroy', $author->id),
+                    'form_url' => route('admin.authors.destroy', $author->id),
                     'edit_url' => route('admin.authors.edit', $author->id),
+                    'confirm_message' => 'Yakin mau menghapus ' . $author->name . '?'
+                    
                     ]);
             })->make(true);
         }
@@ -95,7 +97,7 @@ class AuthorsController extends Controller
     {
         //
         $author = Author::find($id);
-return view('authors.edit')->with(compact('author'));
+        return view('authors.edit')->with(compact('author'));
     }
 
     /**
@@ -109,13 +111,13 @@ return view('authors.edit')->with(compact('author'));
     {
         //
         $this->validate($request, ['name' => 'required|unique:authors,name,'. $id]);
-$author = Author::find($id);
-$author->update($request->only('name'));
-Session::flash("flash_notification", [
-"level"=>"success",
-"message"=>"Berhasil menyimpan $author->name"
-]);
-return redirect()->route('admin.authors.index');
+        $author = Author::find($id);
+        $author->update($request->only('name'));
+        Session::flash("flash_notification", [
+            "level"=>"success",
+            "message"=>"Berhasil menyimpan $author->name"
+            ]);
+        return redirect()->route('admin.authors.index');
     }
 
     /**
@@ -127,11 +129,12 @@ return redirect()->route('admin.authors.index');
     public function destroy($id)
     {
         //
-        Author::destroy($id);
-Session::flash("flash_notification", [
-"level"=>"success",
-"message"=>"Penulis berhasil dihapus"
-]);
-return redirect()->route('admin.authors.index');    
+        // Author::destroy($id);
+        if(!Author::destroy($id)) return redirect()->back();
+        Session::flash("flash_notification", [
+            "level"=>"success",
+            "message"=>"Penulis berhasil dihapus"
+            ]);
+        return redirect()->route('admin.authors.index');    
     }
 }
