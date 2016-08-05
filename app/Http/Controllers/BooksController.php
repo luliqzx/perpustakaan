@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Session;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 
+use App\BorrowLog;
+use Illuminate\Support\Facades\Auth;
+
 class BooksController extends Controller
 {
     /**
@@ -180,7 +183,7 @@ class BooksController extends Controller
         //
         $book = Book::find($id);
 // hapus cover lama, jika ada
-            self::deleteCover($book);
+        self::deleteCover($book);
 //         if ($book->cover) {
 //             $old_cover = $book->cover;
 //             $filepath = public_path() . DIRECTORY_SEPARATOR . 'img'
@@ -198,19 +201,40 @@ class BooksController extends Controller
         return redirect()->route('admin.books.index');
     }
 
-    public function deleteCover($book)
+    public function deleteCover(Book $book)
     {
         # code...
         // hapus cover lama, jika ada
-            if ($book->cover) {
-                $old_cover = $book->cover;
-                $filepath = public_path() . DIRECTORY_SEPARATOR . 'img'
-                . DIRECTORY_SEPARATOR . $book->cover;
-                try {
-                    \File::delete($filepath);
-                } catch (FileNotFoundException $e) {
+        if ($book->cover) {
+            $old_cover = $book->cover;
+            $filepath = public_path() . DIRECTORY_SEPARATOR . 'img'
+            . DIRECTORY_SEPARATOR . $book->cover;
+            try {
+                \File::delete($filepath);
+            } catch (FileNotFoundException $e) {
                     // File sudah dihapus/tidak ada
-                }
             }
+        }
+    }
+
+    public function borrow($id)
+    {
+        try {
+            $book = Book::findOrFail($id);
+            BorrowLog::create([
+                'user_id' => Auth::user()->id,
+                'book_id' => $id
+                ]);
+            Session::flash("flash_notification", [
+                "level"=>"success",
+                "message"=>"Berhasil meminjam $book->title"
+                ]);
+        } catch (ModelNotFoundException $e) {
+            Session::flash("flash_notification", [
+                "level"=>"danger",
+                "message"=>"Buku tidak ditemukan."
+                ]);
+        }
+        return redirect('/');
     }
 }

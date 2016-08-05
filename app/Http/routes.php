@@ -27,12 +27,18 @@ Route::group(['middleware' => ['web']], function () {
     //
 	Route::auth();
 
-Route::get('/', function () {
-	return view('welcome');
-});
+// Route::get('/', function () {
+// 	return view('welcome');
+// });
 
+Route::get('/', 'GuestController@index');
 	
 	Route::get('/home', 'HomeController@index');
+
+	Route::get('books/{book}/borrow', [
+'middleware'=>['auth', 'role:member'],
+'as'=>'books.borrow',
+'uses'=>'BooksController@borrow']);
 
 	// Route::group(['prefix'=>'admin', 'middleware'=>['auth']], function () {
 		// Route diisi disini...
